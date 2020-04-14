@@ -1,13 +1,16 @@
 #pragma once
 
-const size_t BOARD_X_DIM = 8; /// Это лучше не менять.
+const size_t BOARD_X_DIM = 8;
 const size_t BOARD_Y_DIM = 8;
 
-enum Color { BLACK, WHITE, FREE }; /// Это лучше не менять.
+enum Color { BLACK, WHITE, FREE };
+
 
 class Position {
 public:
-	Position(size_t _x_ = 0, size_t _y_ = 0) : _x(_x_), _y(_y_) {
+    Position(): _x(0), _y(0) {}
+
+	Position(size_t x, size_t y) : _x(x), _y(y) {
 		if (!isCorrect())
 			_x = _y = 0;
 	}
@@ -47,6 +50,8 @@ private:
 	}
 };
 
+
+// Simple representation of the state of the board. This class does not contain any game-related logic.
 class Board {
 public:
 	Board() {
@@ -73,11 +78,13 @@ public:
 
 	static const size_t X_DIM;
 	static const size_t Y_DIM;
+
 private:
 	Color board[BOARD_X_DIM][BOARD_Y_DIM];
 };
 const size_t Board::X_DIM = BOARD_X_DIM;
 const size_t Board::Y_DIM = BOARD_Y_DIM;
+
 
 struct BoardHasher {
     size_t operator () (const Board& board) const {

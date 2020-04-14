@@ -8,13 +8,14 @@
 class Strategy {
 public:
 	virtual Move makeMove(const Game& game) = 0;
-	virtual ~Strategy() {}
+	virtual ~Strategy() = default;
 };
 
 class StreamStrategy : public Strategy {
 public:
 	StreamStrategy (std::istream& _in, std::ostream& _out) : in(_in), out(_out) {}
-	Move makeMove(const Game& game) {
+
+	Move makeMove(const Game& game) override {
 		if (game.getMoveNumber() != 0) {
             if (game.getMoves().size() == 1 && game.getMoves()[0].isPass)
                 out << "Pass\n";
@@ -24,19 +25,11 @@ public:
             out.flush();
 		}
 
-        std::vector<Move> moves = game.getPossibleMoves(game.getCurrentColor());
-        if (moves.size() == 1 && moves[0].isPass) {
-            std::cout << "Pass\n";
-            return moves[0];
-        }
-
         int x;
         char y;
         in >> y >> x;
         return Move(Position(x - 1, y - 'a'), false);
 	}
-
-	~StreamStrategy() {}
 
 private:
 	std::istream& in;
@@ -46,7 +39,8 @@ private:
 class ServerStrategy : public Strategy {
 public:
 	ServerStrategy (std::istream& _in, std::ostream& _out) : in(_in), out(_out) {}
-	Move makeMove(const Game& game) {
+
+	Move makeMove(const Game& game) override {
 		if (game.getMoveNumber() != 0) {
 		    std::string s;
 		    in >> s;
@@ -76,15 +70,13 @@ public:
             return moves[0];
 	}
 
-	~ServerStrategy() {}
-
 private:
 	std::istream& in;
 	std::ostream& out;
 };
 
 class RandomStrategy : public Strategy {
-	Move makeMove(const Game& game) {
+	Move makeMove(const Game& game) override {
 		std::vector<Move> moves = game.getPossibleMoves(game.getCurrentColor());
 		return moves[rand() % moves.size()];
 	}

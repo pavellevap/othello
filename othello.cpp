@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <memory>
 #include <cstdlib>
 #include <fstream>
@@ -52,8 +53,10 @@ MyConstants findConstants(double timeForMove) {
 		int XFieldCost = -(rand() % 20 + 1);
 		int CFieldCost = -(rand() % 20 + 1);
 		cout << i << endl;
-		cout << "best " << bestConstants.CORNER_COST << ' ' << bestConstants.X_FIELD_COST << ' ' << bestConstants.C_FIELD_COST << ' ' << count << endl;
-		//cout << cornerCost << ' ' << XFieldCost << ' ' << CFieldCost << endl;
+		cout << "best " << bestConstants.CORNER_COST << ' ';
+        cout << bestConstants.X_FIELD_COST << ' ';
+        cout << bestConstants.C_FIELD_COST << ' ';
+        cout << count << endl;
 
 		MyConstants newConstants(cornerCost, XFieldCost, CFieldCost, timeForMove);
 
@@ -77,9 +80,9 @@ MyConstants findConstants(double timeForMove) {
 		if (score > 0) {
             count = 0;
 			bestConstants = newConstants;
-        }
-        else
+        } else {
             count++;
+        }
 	}
 
 	cout << bestConstants.CORNER_COST << endl;
@@ -106,33 +109,45 @@ void playWithServer() {
 	runner.run();
 }
 
-int main() {
+int main(int argc, const char* argv[]) {
 	srand(0);
 
-	//findConstants(0.05);
-	//playWithServer();
-	//return 0;
+	string color = "black";
+	if (argc > 1)
+	    color = argv[1];
 
-    Strategy* black = new MyStrategy(MyConstants(10, -5, -2, 0.1));
-    Strategy* white = new MyStrategy(MyConstants(10, -5, -2, 0.1));
-	//Strategy* black = new StreamStrategy(cin, cout);
-	//Strategy* white = new StreamStrategy(cin, cout);
-	//Strategy* black = new RandomStrategy();
-	//Strategy* white = new RandomStrategy();
+	double time = 1.0;
+	if (argc > 2)
+	    time = stoi(argv[2]) / 1000.0;
+
+    Strategy* black;
+    Strategy* white;
+
+    if (color == "black") {
+        black = new StreamStrategy(cin, cout);
+        white = new MyStrategy(MyConstants(10, -5, -2, time));
+    } else {
+        black = new MyStrategy(MyConstants(10, -5, -2, time));
+        white = new StreamStrategy(cin, cout);
+    }
 
 	Runner runner(black, white);
 
+    printBoard(runner.getGame().getBoard());
 	while (!runner.getGame().isGameFinished()) {
-        clock_t startClock = clock();
 		runner.makeMove();
-		clock_t endClock = clock();
 
 		printBoard(runner.getGame().getBoard());
-		cout << (endClock - startClock + 0.0L) / CLOCKS_PER_SEC << endl;
-        //char x;
-        //cin.get(x);
 	}
 
-	cout << runner.getGame().getScore(BLACK) << ' ' << runner.getGame().getScore(WHITE) << endl;
+	cout << "black: " << runner.getGame().getScore(BLACK) << endl;
+	cout << "white: " << runner.getGame().getScore(WHITE) << endl;
+	if (runner.getGame().getScoreDifference(BLACK) > 0)
+	    cout << "Black won!\n";
+    else if (runner.getGame().getScoreDifference(BLACK) < 0)
+        cout << "White won!\n";
+    else
+        cout << "Draw!\n";
+
 	return 0;
 }
